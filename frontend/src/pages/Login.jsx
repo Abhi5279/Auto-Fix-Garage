@@ -1,18 +1,21 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import GarageLoading from '../components/GarageLoading';
 
 const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' });
   const [showPopup, setShowPopup] = useState(false);
   const [failedPopup, setFailedPopup] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
       // 1. Send login request
-      const loginRes = await fetch('http://localhost:3000/api/auth/login', {
+      const loginRes = await fetch(`${import.meta.env.VITE_REACT_APP_API_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -27,7 +30,7 @@ const Login = () => {
       }
 
       // 2. Fetch user details (including role)
-      const userRes = await fetch('http://localhost:3000/api/auth/me', {
+      const userRes = await fetch(`${import.meta.env.VITE_REACT_APP_API_URL}/api/auth/me`, {
         credentials: 'include',
       });
 
@@ -52,6 +55,9 @@ const Login = () => {
 
     } catch (err) {
       setFailedPopup(true);
+      console.log(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -114,6 +120,11 @@ const Login = () => {
               Close
             </button>
           </div>
+        </div>
+      )}
+      {loading && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <GarageLoading />
         </div>
       )}
     </div>

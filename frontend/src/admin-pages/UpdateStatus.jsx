@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import GarageLoading from '../components/GarageLoading';
+const API_URL = import.meta.env.VITE_REACT_APP_API_URL;
 
 const UpdateStatus = () => {
   const [requests, setRequests] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [deletePopup, setShowDeletePopup] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchRequests();
@@ -11,7 +14,7 @@ const UpdateStatus = () => {
 
   const fetchRequests = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/service-request', {
+      const res = await fetch(`${API_URL}/api/service-request`, {
         credentials: 'include',
       });
       const data = await res.json();
@@ -23,7 +26,7 @@ const UpdateStatus = () => {
 
   const handleStatusUpdate = async (id, newStatus) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/service-request/${id}/status`, {
+      const response = await fetch(`${API_URL}/api/service-request/${id}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
@@ -48,8 +51,9 @@ const UpdateStatus = () => {
   };
 
   const handleDelete = async (id) => {
+    setLoading(true);
     try {
-      const response = await fetch(`http://localhost:3000/api/service-request/${id}`, {
+      const response = await fetch(`${API_URL}/api/service-request/${id}`, {
         method: 'DELETE',
         credentials: 'include',
       });
@@ -63,6 +67,8 @@ const UpdateStatus = () => {
       }
     } catch (err) {
       console.error('Error deleting request:', err);
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -102,7 +108,6 @@ const UpdateStatus = () => {
               <button
                 onClick={() => {
                   handleStatusUpdate(req._id, 'Accepted')
-                  S
                 }}
                 className="bg-green-500 text-white px-4 py-1 rounded hover:bg-green-600">
                 Accept
@@ -148,6 +153,11 @@ const UpdateStatus = () => {
               Close
             </button>
           </div>
+        </div>
+      )}
+            {loading && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <GarageLoading />
         </div>
       )}
     </div>

@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { FaUserCircle, FaBars, FaTimes } from 'react-icons/fa';
 import LogoImage from '../assets/autoFixLogo.png';
+import GarageLoading from '../components/GarageLoading';
 
 const NavBar = () => {
   const [userRole, setUserRole] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const syncAuthStatus = () => {
@@ -21,8 +23,9 @@ const NavBar = () => {
   }, []);
 
   const handleLogout = async () => {
+    setLoading(true);
     try {
-      await fetch('http://localhost:3000/api/auth/logout', {
+      await fetch(`${import.meta.env.VITE_REACT_APP_API_URL}/api/auth/logout`, {
         method: 'POST',
         credentials: 'include',
       });
@@ -32,6 +35,8 @@ const NavBar = () => {
       navigate('/login');
     } catch (err) {
       console.error('Logout failed:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -64,7 +69,7 @@ const NavBar = () => {
       <div className="hidden sm:block relative group text-white">
 
         <Link to="/myprofile">
-            <FaUserCircle className="text-2xl" />
+          <FaUserCircle className="text-2xl" />
         </Link>
 
         <div className='group-hover:block hidden absolute right-0 pt-4 z-10'>
@@ -86,17 +91,18 @@ const NavBar = () => {
           <NavLink to="/about" onClick={toggleMobileMenu}>ABOUT</NavLink>
           <NavLink to="/contact-us" onClick={toggleMobileMenu}>CONTACT</NavLink>
           <Link to="/myprofile" onClick={toggleMobileMenu}>
-            {profileImage ? (
-              <img src={profileImage} alt="Profile" className="w-8 h-8 rounded-full object-cover" />
-            ) : (
               <p>MY PROFILE</p>
-            )}
           </Link>
           {!userRole ? (
             <Link to="/login" onClick={toggleMobileMenu}>Login</Link>
           ) : (
-            <p onClick={() => { handleLogout(); toggleMobileMenu(); }}>Logout</p>
+            <p onClick={() => { handleLogout(); toggleMobileMenu(); }}>LOGOUT</p>
           )}
+        </div>
+      )}
+      {loading && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <GarageLoading />
         </div>
       )}
     </nav>

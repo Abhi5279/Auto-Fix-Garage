@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import GarageLoading from '../components/GarageLoading';
+
 
 const Form = () => {
     const [formData, setFormData] = useState({
@@ -15,13 +17,13 @@ const Form = () => {
         status: 'Pending',
         userId: '', // Required for backend
     });
-
+    const [loading, setLoading] = useState(false);
     const [showPopup, setShowPopup] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
 
     // Fetch user info on component load to get userId
     useEffect(() => {
-        fetch('http://localhost:3000/api/auth/me', {
+        fetch(`${import.meta.env.VITE_REACT_APP_API_URL}/api/auth/me`, {
             credentials: 'include', // Send cookies with request
         })
             .then((res) => res.json())
@@ -42,6 +44,7 @@ const Form = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
 
         const cleanedData = {
             ...formData,
@@ -49,7 +52,7 @@ const Form = () => {
         };
 
         try {
-            const response = await fetch('http://localhost:3000/api/service-request', {
+            const response = await fetch(`${import.meta.env.VITE_REACT_APP_API_URL}/api/service-request`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include', // Important: send cookie with JWT
@@ -69,6 +72,8 @@ const Form = () => {
             setShowPopup(false);
             setErrorMessage('Server error. Please try again.');
             console.error(err);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -102,7 +107,7 @@ const Form = () => {
                     value={formData.vehicleType}
                     onChange={handleChange}
                     required
-                    className="w-full p-3 border border-gray-300 rounded-lg"
+                    className="w-1/2 p-3 border border-gray-300 rounded-lg"
                 >
                     <option value="">Select Vehicle Type</option>
                     <option value="car">Car</option>
@@ -127,7 +132,7 @@ const Form = () => {
                     value={formData.problemType}
                     onChange={handleChange}
                     required
-                    className="w-full p-3 border border-gray-300 rounded-lg"
+                    className="w-1/2 p-3 border border-gray-300 rounded-lg"
                 >
                     <option value="">Select Problem</option>
                     <option value="engine">Engine Issue</option>
@@ -209,6 +214,11 @@ const Form = () => {
                             Close
                         </button>
                     </div>
+                </div>
+            )}
+            {loading && (
+                <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                    <GarageLoading />
                 </div>
             )}
         </div>
