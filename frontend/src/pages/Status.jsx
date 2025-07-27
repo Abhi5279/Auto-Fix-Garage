@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { FaTimes } from 'react-icons/fa';
+const BASE_URL = import.meta.env.VITE_REACT_APP_API_URL;
+import GarageLoading from '../components/GarageLoading';
+
+
 
 const Status = () => {
   const [requests, setRequests] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [userId, setUserId] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   // Get user ID from auth
+
   useEffect(() => {
-    fetch('http://localhost:3000/api/auth/me', {
+    setLoading(true);
+    fetch(`${BASE_URL}/api/auth/me`, {
       credentials: 'include',
     })
       .then((res) => res.json())
@@ -24,18 +30,21 @@ const Status = () => {
   useEffect(() => {
     if (!userId) return;
 
-    fetch(`http://localhost:3000/api/service-request/user/${userId}`, {
+    fetch(`${BASE_URL}/api/service-request/user/${userId}`, {
       credentials: 'include',
     })
+
       .then((res) => res.json())
       .then((data) => setRequests(data))
       .catch((err) => console.error('Error fetching requests:', err));
+    setLoading(false);
   }, [userId]);
 
   // Delete handler
   const handleDelete = async (idToDelete, indexToDelete) => {
+    setLoading(true);
     try {
-      const res = await fetch(`http://localhost:3000/api/service-request/${idToDelete}`, {
+      const res = await fetch(`${BASE_URL}/api/service-request/${idToDelete}`, {
         method: 'DELETE',
         credentials: 'include',
       });
@@ -51,6 +60,8 @@ const Status = () => {
       }
     } catch (err) {
       console.error('Error deleting booking:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -89,7 +100,7 @@ const Status = () => {
                 </span>
 
                 <button
-                  onClick={() => handleDelete(req._id,index)}
+                  onClick={() => handleDelete(req._id, index)}
                   className="px-3 py-1 rounded-full text-white text-sm font-semibold bg-red-500 hover:bg-red-600 transition-colors">
                   Cancel Booking
                 </button>
@@ -103,6 +114,11 @@ const Status = () => {
               )}
             </div>
           ))}
+        </div>
+      )}
+      {loading && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <GarageLoading />
         </div>
       )}
     </div>
