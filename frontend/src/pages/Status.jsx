@@ -22,6 +22,7 @@ const Status = () => {
         if (data._id) {
           setUserId(data._id);
         }
+        setLoading(false);
       })
       .catch((err) => console.error('Error fetching user:', err));
   }, []);
@@ -32,6 +33,7 @@ const Status = () => {
 
     fetch(`${BASE_URL}/api/service-request/user/${userId}`, {
       credentials: 'include',
+      
     })
 
       .then((res) => res.json())
