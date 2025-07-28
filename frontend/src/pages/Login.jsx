@@ -43,7 +43,7 @@ const Login = () => {
       setShowPopup(true);
       setTimeout(() => {
         if (userData.role === 'admin') {
-          navigate('/updateStatus');
+          navigate('/');
         } else {
           navigate('/');
         }
