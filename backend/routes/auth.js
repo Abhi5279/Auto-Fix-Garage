@@ -37,10 +37,10 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '1d' });
 
     res.cookie('token', token, {
-      httpOnly: true,
-      sameSite: 'Lax',
-      secure: false, // true if using HTTPS
-      maxAge: 86400000,
+  httpOnly: true,
+  sameSite: 'None',   // ✅ allow cross-site cookies
+  secure: true,       // ✅ required for HTTPS (Render)
+  maxAge: 86400000
     });
 
     res.json({
